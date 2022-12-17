@@ -3,9 +3,10 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Eligibility } from './eligibility';
 import {
   EligibilityCheckInput,
-  IEligibilityCheckOutput,
-  NotEligibleResult,
+  EligibilityCheckOutput,
 } from './eligibillity.dto';
+
+import { ValidationPipe } from './validtion.pipe';
 
 @ApiTags('Eligibility')
 @Controller()
@@ -48,11 +49,8 @@ export class EligibilityController {
   })
   @Post('/check')
   CheckEligibility(
-    @Body() input: EligibilityCheckInput,
-  ): IEligibilityCheckOutput {
-    return {
-      eligible: false,
-      notEligibilityReasons: ['teste', 'teste'],
-    } as NotEligibleResult;
+    @Body(new ValidationPipe()) input: EligibilityCheckInput,
+  ): EligibilityCheckOutput {
+    return this.eligibilityProvider.check(input);
   }
 }
