@@ -1,92 +1,39 @@
 import { Injectable } from '@nestjs/common';
+import { AnualCo2SavingsCalculatorService } from 'src/anual-co2-savings-calculator/anual-co2-savings-calculator.service';
+import { EligibilityValidatorService } from 'src/eligibility-validator/eligibility-validator.service';
 import {
-  ConnectionType,
-  ConsumptionClass,
   EligibilityCheckInput,
   EligibilityCheckOutput,
+  EligibleResult,
   NotEligibleResult,
-  TariffModalities,
 } from './eligibillity.dto';
 
 @Injectable()
 export class Eligibility {
+  constructor(
+    private readonly validator: EligibilityValidatorService,
+    private readonly calculator: AnualCo2SavingsCalculatorService,
+  ) {}
+
   check(input: EligibilityCheckInput): EligibilityCheckOutput {
-    const notEligibilityReasons = validateEligibility(input)
+    const notEligibilityReasons = this.validator
+      .validateEligibility(input)
       .validateConsumptionClass()
       .validateTariffModality()
+      .validateClientConsumption()
       .result();
-    return {} as NotEligibleResult;
+
+    if (notEligibilityReasons.length)
+      return {
+        eligible: false,
+        notEligibilityReasons: notEligibilityReasons,
+      } as NotEligibleResult;
+    else
+      return {
+        eligible: true,
+        anualCO2SavingEstimate: this.calculator.computeSavings(
+          input.consumptionHistoric,
+        ),
+      } as EligibleResult;
   }
-}
-function validateEligibility(eligibility: EligibilityCheckInput) {
-  const notEligibilityReasons: string[] = [];
-  const validations = {
-    result(): string[] {
-      return notEligibilityReasons;
-    },
-
-    validateConsumptionClass() {
-      const eligibleConsuptionClasses = [
-        ConsumptionClass.COMMERCIAL,
-        ConsumptionClass.RESIDENTIAL,
-        ConsumptionClass.INDUSTRIAL,
-      ];
-      if (
-        !eligibleConsuptionClasses.some(
-          (e) => e === eligibility.consumptionClass,
-        )
-      )
-        notEligibilityReasons.push(
-          `${eligibility.consumptionClass} is not eligible`,
-        );
-
-      return validations;
-    },
-
-    validateTariffModality() {
-      const eligibleTariffModalities = [
-        TariffModalities.CONVENTIONAL,
-        TariffModalities.WHITE,
-      ];
-
-      if (
-        !eligibleTariffModalities.some((e) => e === eligibility.tariffModality)
-      )
-        notEligibilityReasons.push(
-          `${eligibility.tariffModality} is not eligible`,
-        );
-
-      return validations;
-    },
-
-    validateClientConsumption() {
-      const msg =
-        'Consumption average is below requirements for the connection type';
-      const consumptionAvg =
-        eligibility.consumptionHistoric.reduce((prev, current) => {
-          return prev + current;
-        }, 0) / eligibility.consumptionHistoric.length;
-
-      if (
-        eligibility.connectionType === ConnectionType.SINGLEPHASE &&
-        consumptionAvg < 400
-      )
-        notEligibilityReasons.push(msg);
-
-      notEligibilityReasons.push(msg);
-      if (
-        eligibility.connectionType === ConnectionType.BIPHASIC &&
-        consumptionAvg < 500
-      )
-        if (
-          (eligibility.connectionType as ConnectionType) ===
-            ConnectionType.THREEPHASE &&
-          consumptionAvg < 750
-        )
-          notEligibilityReasons.push(msg);
-      return validations;
-    },
-  };
-
-  return validations;
 }
