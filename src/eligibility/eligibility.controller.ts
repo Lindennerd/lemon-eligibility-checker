@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Eligibility } from './eligibility';
+import { Eligibility } from './eligibility.provider';
 import {
   EligibilityCheckInput,
   EligibilityCheckOutput,
