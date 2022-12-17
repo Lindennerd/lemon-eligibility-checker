@@ -1,4 +1,5 @@
-#Lemon Eligibility Checker API
+# Lemon Eligibility Checker API
+
 A simple API to check the eligibility of clients for Lemon services
 
 ## Description
