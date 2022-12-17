@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsString, Matches } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { documentNumberPattern } from './constants';
 
 export enum ConnectionType {
@@ -78,5 +85,13 @@ export class EligibilityCheckInput {
       each: true,
     },
   )
+  @MinLength(12, {
+    message:
+      'The consumption historic must contains the value of 12 months consumption rate',
+  })
+  @MaxLength(12, {
+    message:
+      'The consumption historic must contains the value of 12 months consumption rate',
+  })
   consumptionHistoric: number[];
 }
