@@ -8,11 +8,11 @@ import {
 
 @Injectable()
 export class EligibilityValidatorService {
-  private readonly minimumRateForSinglePhase = 4000;
-  private readonly minimumRateForBiPhase = 5000;
-  private readonly minimumRateForThreePhase = 7500;
-
   validateEligibility(eligibility: EligibilityCheckInput) {
+    const minimumRateForSinglePhase = 4000;
+    const minimumRateForBiPhase = 5000;
+    const minimumRateForThreePhase = 7500;
+
     const notEligibilityReasons: string[] = [];
     const validations = {
       result(): string[] {
@@ -60,27 +60,26 @@ export class EligibilityValidatorService {
         const msg =
           'Consumption average is below requirements for the connection type';
         const consumptionAvg =
-          eligibility.consumptionHistoric &&
           eligibility.consumptionHistoric.reduce((prev, current) => {
             return prev + current;
           }, 0) / eligibility.consumptionHistoric.length;
 
         if (
           eligibility.connectionType === ConnectionType.SINGLEPHASE &&
-          consumptionAvg < this.minimumRateForSinglePhase
+          consumptionAvg < minimumRateForSinglePhase
         )
           notEligibilityReasons.push(msg);
 
         if (
           eligibility.connectionType === ConnectionType.BIPHASIC &&
-          consumptionAvg < this.minimumRateForBiPhase
+          consumptionAvg < minimumRateForBiPhase
         )
           notEligibilityReasons.push(msg);
 
         if (
           (eligibility.connectionType as ConnectionType) ===
             ConnectionType.THREEPHASE &&
-          consumptionAvg < this.minimumRateForThreePhase
+          consumptionAvg < minimumRateForThreePhase
         )
           notEligibilityReasons.push(msg);
 
