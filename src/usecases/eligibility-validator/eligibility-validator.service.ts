@@ -8,6 +8,10 @@ import {
 
 @Injectable()
 export class EligibilityValidatorService {
+  private readonly minimumRateForSinglePhase = 4000;
+  private readonly minimumRateForBiPhase = 5000;
+  private readonly minimumRateForThreePhase = 7500;
+
   validateEligibility(eligibility: EligibilityCheckInput) {
     const notEligibilityReasons: string[] = [];
     const validations = {
@@ -21,13 +25,14 @@ export class EligibilityValidatorService {
           ConsumptionClass.RESIDENTIAL,
           ConsumptionClass.INDUSTRIAL,
         ];
+
         if (
           !eligibleConsuptionClasses.some(
             (e) => e === eligibility.consumptionClass,
           )
         )
           notEligibilityReasons.push(
-            `${eligibility.consumptionClass} is not eligible`,
+            `the consumption class ${eligibility.consumptionClass} is not eligible`,
           );
 
         return validations;
@@ -45,7 +50,7 @@ export class EligibilityValidatorService {
           )
         )
           notEligibilityReasons.push(
-            `${eligibility.tariffModality} is not eligible`,
+            `the tariff modality ${eligibility.tariffModality} is not eligible`,
           );
 
         return validations;
@@ -55,27 +60,30 @@ export class EligibilityValidatorService {
         const msg =
           'Consumption average is below requirements for the connection type';
         const consumptionAvg =
+          eligibility.consumptionHistoric &&
           eligibility.consumptionHistoric.reduce((prev, current) => {
             return prev + current;
           }, 0) / eligibility.consumptionHistoric.length;
 
         if (
           eligibility.connectionType === ConnectionType.SINGLEPHASE &&
-          consumptionAvg < 400
+          consumptionAvg < this.minimumRateForSinglePhase
         )
           notEligibilityReasons.push(msg);
 
-        notEligibilityReasons.push(msg);
         if (
           eligibility.connectionType === ConnectionType.BIPHASIC &&
-          consumptionAvg < 500
+          consumptionAvg < this.minimumRateForBiPhase
         )
-          if (
-            (eligibility.connectionType as ConnectionType) ===
-              ConnectionType.THREEPHASE &&
-            consumptionAvg < 750
-          )
-            notEligibilityReasons.push(msg);
+          notEligibilityReasons.push(msg);
+
+        if (
+          (eligibility.connectionType as ConnectionType) ===
+            ConnectionType.THREEPHASE &&
+          consumptionAvg < this.minimumRateForThreePhase
+        )
+          notEligibilityReasons.push(msg);
+
         return validations;
       },
     };
