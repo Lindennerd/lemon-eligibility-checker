@@ -88,15 +88,15 @@ export class EligibilityCheckInput {
   )
   @ArrayNotEmpty({
     message:
-      'The consumption historic must contains the value of 12 months consumption rate',
+      'The consumption historic must contains at least 3 months consumption rate',
   })
-  @ArrayMinSize(12, {
+  @ArrayMinSize(3, {
     message:
-      'The consumption historic must contains the value of 12 months consumption rate',
+      'The consumption historic must contains at least 3 months consumption rate',
   })
   @ArrayMaxSize(12, {
     message:
-      'The consumption historic must contains the value of 12 months consumption rate',
+      'The consumption historic must contains a maximun of 12 months consumption rate',
   })
   consumptionHistoric: number[];
 }
