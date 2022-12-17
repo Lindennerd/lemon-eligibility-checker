@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  ArrayNotEmpty,
   IsEnum,
   IsNumber,
   IsString,
   Matches,
-  MaxLength,
-  MinLength,
 } from 'class-validator';
 import { documentNumberPattern } from './constants';
 
@@ -62,7 +63,7 @@ export class EligibilityCheckInput {
   connectionType: ConnectionType;
 
   @ApiProperty({ enum: ConsumptionClass })
-  @IsEnum(ConnectionType, {
+  @IsEnum(ConsumptionClass, {
     message: `The consumption class must be one of this values ${Object.values(
       ConsumptionClass,
     )}`,
@@ -70,7 +71,7 @@ export class EligibilityCheckInput {
   consumptionClass: ConsumptionClass;
 
   @ApiProperty({ enum: TariffModalities })
-  @IsEnum(ConnectionType, {
+  @IsEnum(TariffModalities, {
     message: `The tariff modality must be one of this values ${Object.values(
       TariffModalities,
     )}`,
@@ -85,11 +86,15 @@ export class EligibilityCheckInput {
       each: true,
     },
   )
-  @MinLength(12, {
+  @ArrayNotEmpty({
     message:
       'The consumption historic must contains the value of 12 months consumption rate',
   })
-  @MaxLength(12, {
+  @ArrayMinSize(12, {
+    message:
+      'The consumption historic must contains the value of 12 months consumption rate',
+  })
+  @ArrayMaxSize(12, {
     message:
       'The consumption historic must contains the value of 12 months consumption rate',
   })
