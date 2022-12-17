@@ -9,7 +9,9 @@ describe('AnualCo2SavingsCalculatorService', () => {
       providers: [AnualCo2SavingsCalculatorService],
     }).compile();
 
-    service = module.get<AnualCo2SavingsCalculatorService>(AnualCo2SavingsCalculatorService);
+    service = module.get<AnualCo2SavingsCalculatorService>(
+      AnualCo2SavingsCalculatorService,
+    );
   });
 
   it('should be defined', () => {
